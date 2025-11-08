@@ -1,6 +1,8 @@
 
 # LSX1 in MjLab
 
+克隆本仓库克隆至和mjlab同级目录下
+
 This repository showcase the implementation of the LSX1 robot into [MjLab](https://github.com/mujocolab/mjlab). 
 
 > [!WARNING]
