@@ -110,15 +110,15 @@ class DarkSeaX1RoughEnvCfg(LocomotionVelocityEnvCfg):
 
     # curriculum
     weight_stages = [
-        {"step": 0, "weight": -1e-5},
-        {"step": 10000 * 24, "weight": -1e-3},
-        {"step": 20000 * 24, "weight": -0.02},
+        {"step": 0, "weight": -1e-3},
+        # {"step": 10000 * 24, "weight": -1e-3},
+        # {"step": 20000 * 24, "weight": -0.02},
       ]
     
     twist_stages = [
-        {"step": 0, "lin_vel_x": (-1.0, 1.0), "ang_vel_z": (-0.8, 0.8)},
-        # {"step": 10000 * 24, "lin_vel_x": (-1.5, 2.0), "ang_vel_z": (-0.7, 0.7)},
-        # {"step": 20000 * 24, "lin_vel_x": (-2.0, 3.0)},
+        {"step": 0, "lin_vel_x": (-0.5, 0.5), "ang_vel_z": (-0.5, 0.5)},
+        {"step": 10000 * 24, "lin_vel_x": (-1.0, 1.0), "ang_vel_z": (-0.7, 0.7)},
+        {"step": 20000 * 24, "lin_vel_x": (-1.0, 1.5), "ang_vel_z": (-0.9, 0.9)},
     ]
 
     self.curriculum.soft_landing_weight.params["weight_stages"] = weight_stages

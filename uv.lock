@@ -2724,14 +2724,12 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "mjlab" },
-    { name = "pygame" },
     { name = "ruff" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "mjlab", editable = "../mjlab" },
-    { name = "pygame" },
     { name = "ruff", specifier = ">=0.14.0" },
 ]
 
