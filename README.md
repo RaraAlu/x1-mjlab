@@ -37,25 +37,3 @@ Evaluate the policy.
 ```bash
 ./play.sh
 ```
-
-## 🎯 Roadmap
-
-- [ ] Use IMU for observations
-- [ ] Use simplified meshes for collisions
-- [ ] Deploy the policy on real robot
-- [ ] Use rough terrains
-- [ ] Add a head to the robot
-
-Check [here](https://github.com/BDX-R) for the general roadmap of the project!
-
-## 🛠️ Contributing
-
-We look forward for contributions. Before submitting a PR, please run the following command for format:
-
-```bash
-make format
-```
-
-## 🙏 Acknowledgements
-
-We're grateful to the people behind MjLab, MuJoCo Warp and Isaac Lab.
