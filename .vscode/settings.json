@@ -1,0 +1,18 @@
+{
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.formatOnSave": true,
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false
+  },
+  "autopep8.args": [
+    "--indent-size=2",
+    "--ignore=E121,E126,E127,E128,E129,E131,E133" // 忽略悬挂缩进相关的错误
+  ]
+}

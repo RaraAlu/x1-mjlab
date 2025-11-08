@@ -1,0 +1,26 @@
+[project]
+name = "x1-mjlab"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Lulrara", email = "zhangsanjh42@126.com" }
+]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "mjlab",
+    "ruff>=0.14.0",
+]
+
+[project.scripts]
+x1-mjlab = "x1_mjlab:main"
+x1_train = "x1_mjlab.scripts.train:main"
+x1_play = "x1_mjlab.scripts.play:main"
+x1_list_envs = "x1_mjlab.scripts.list_envs:main"
+
+[build-system]
+requires = ["uv_build>=0.8.18,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+mjlab = { path = "../mjlab", editable = true }

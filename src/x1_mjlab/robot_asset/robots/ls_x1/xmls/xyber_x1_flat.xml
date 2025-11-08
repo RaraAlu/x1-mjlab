@@ -1,0 +1,6 @@
+<mujoco model = "zhiyuan scene">
+
+    <include file = "x1.xml" />
+    <include file = "flat.xml" />
+
+</mujoco>
