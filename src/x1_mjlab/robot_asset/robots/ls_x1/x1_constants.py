@@ -318,7 +318,7 @@ X1_ARTICULATION = EntityArticulationInfoCfg(
 )
 
 
-def get_g1_robot_cfg() -> EntityCfg:
+def get_x1_robot_cfg() -> EntityCfg:
   """Get a fresh G1 robot configuration instance.
 
   Returns a new EntityCfg instance each time to avoid mutation issues when
@@ -362,7 +362,7 @@ if __name__ == "__main__":
   from mjlab.entity.entity import Entity
 
   # 创建X1机器人实体
-  robot = Entity(get_g1_robot_cfg())
+  robot = Entity(get_x1_robot_cfg())
 
   # 启动MuJoCo可视化查看器，检查机器人配置是否正确
   viewer.launch(robot.spec.compile())
