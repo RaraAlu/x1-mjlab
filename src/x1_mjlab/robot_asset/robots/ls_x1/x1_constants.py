@@ -71,86 +71,60 @@ def get_spec() -> mujoco.MjSpec:  # type: ignore
 ##
 # 执行器配置（基于智元PowerFlow电机）
 ##
-
-
-# RPM（转/分）到弧度/秒的转换系数
-# 公式：rad/s = RPM × 2π / 60
-RPM_TO_RADS = 2.0 * math.pi / 60.0
-
-# 通用伺服模型参数（用于LQR控制模型）
-# 自然频率：10Hz，用于计算刚度和阻尼系数
-NATURAL_FREQ = 10 * 2.0 * math.pi  # 10Hz 自然频率
-# 阻尼比：控制系统的响应速度和稳定性
-DAMPING_RATIO = 2.0
-
-# --- 1. R86-3 型号（A类）：高扭矩腿部电机 ---
-# 应用位置：6个关节（腿部主要关节）
-# 具体为：髋关节俯仰、髋关节翻滚、膝关节俯仰（每条腿各3个）
-# 峰值扭矩：200 Nm
-# 峰值速度：85 rpm（8.90 rad/s）
-
-# 电机电枢惯量（估算值），用于计算系统的响应特性
 ARMATURE_R86_3 = 0.022
-# 电机速度限制，转换为 rad/s
-VELOCITY_LIMIT_R86_3 = 85.0 * RPM_TO_RADS
-# 电机扭矩限制（最大输出扭矩）
-EFFORT_LIMIT_R86_3 = 200.0
+ARMATURE_R86_2 = 0.015
+ARMATURE_R52 = 0.0085
 
-# 创建R86-3电机的执行器对象
+
 ACTUATOR_R86_3 = ElectricActuator(
     reflected_inertia=ARMATURE_R86_3,  # 反射惯量
-    velocity_limit=VELOCITY_LIMIT_R86_3,  # 速度限制
-    effort_limit=EFFORT_LIMIT_R86_3,  # 扭矩限制
+    velocity_limit=150,  # 速度限制
+    effort_limit=8,  # 扭矩限制
 )
-# 计算刚度系数：用于PD控制中的位置反馈增益
-# 刚度 = 反射惯量 × 自然频率²
-STIFFNESS_R86_3 = ACTUATOR_R86_3.reflected_inertia * NATURAL_FREQ**2
-# 计算阻尼系数：用于PD控制中的速度反馈增益
-# 阻尼 = 2 × 阻尼比 × 反射惯量 × 自然频率
-DAMPING_R86_3 = 2.0 * DAMPING_RATIO * \
-    ACTUATOR_R86_3.reflected_inertia * NATURAL_FREQ
+ACTUATOR_R86_2 = ElectricActuator(
+    reflected_inertia=ARMATURE_R86_2,  # 反射惯量
+    velocity_limit=50,  # 速度限制
+    effort_limit=24,  # 扭矩限制
+)
+ACTUATOR_R52 = ElectricActuator(
+    reflected_inertia=ARMATURE_R52,  # 反射惯量
+    velocity_limit=80,  # 速度限制
+    effort_limit=10,  # 扭矩限制
+)
+
+
+NATURAL_FREQ = 10 * 2.0 * math.pi
+DAMPING_RATIO = 2.0
+
+STIFFNESS_R86_3 = ARMATURE_R86_3 * NATURAL_FREQ**2
+STIFFNESS_R86_2 = ARMATURE_R86_2 * NATURAL_FREQ**2
+STIFFNESS_R52 = ARMATURE_R52 * NATURAL_FREQ**2
+
+DAMPING_R86_3 = 2.0 * DAMPING_RATIO * ARMATURE_R86_3 * NATURAL_FREQ
+DAMPING_R86_2 = 2.0 * DAMPING_RATIO * ARMATURE_R86_2 * NATURAL_FREQ
+DAMPING_R52 = 2.0 * DAMPING_RATIO * ARMATURE_R52 * NATURAL_FREQ
+
+
 
 # R86-3 执行器配置对象
 X1_ACTUATOR_R86_3 = ActuatorCfg(
     # 关节名称匹配表达式（正则表达式）
-    joint_names_expr=[
+    joint_names_expr=(
         ".*_hip_pitch_joint",  # 髋关节俯仰
         ".*_hip_roll_joint",   # 髋关节翻滚
         ".*_knee_pitch_joint",  # 膝关节俯仰
-    ],
+    ),
     effort_limit=ACTUATOR_R86_3.effort_limit,  # 扭矩限制
     armature=ACTUATOR_R86_3.reflected_inertia,  # 电枢惯量
     stiffness=STIFFNESS_R86_3,  # 刚度
     damping=DAMPING_R86_3,  # 阻尼
 )
 
-# --- 2. R86-2 型号（B类）：中等扭矩腿部/躯干电机 ---
-# 应用位置：9个关节
-# 具体为：躯干（3个）、腿部次要关节（髋关节偏航、踝关节翻滚）
-# 峰值扭矩：80 Nm
-# 峰值速度：260 rpm（27.23 rad/s）
 
-# 电机电枢惯量（估算值）
-ARMATURE_R86_2 = 0.015
-# 电机速度限制
-VELOCITY_LIMIT_R86_2 = 260.0 * RPM_TO_RADS
-# 电机扭矩限制
-EFFORT_LIMIT_R86_2 = 80.0
-
-# 创建R86-2电机的执行器对象
-ACTUATOR_R86_2 = ElectricActuator(
-    reflected_inertia=ARMATURE_R86_2,
-    velocity_limit=VELOCITY_LIMIT_R86_2,
-    effort_limit=EFFORT_LIMIT_R86_2,
-)
-# 计算R86-2的刚度和阻尼
-STIFFNESS_R86_2 = ACTUATOR_R86_2.reflected_inertia * NATURAL_FREQ**2
-DAMPING_R86_2 = 2.0 * DAMPING_RATIO * \
-    ACTUATOR_R86_2.reflected_inertia * NATURAL_FREQ
 
 # R86-2 执行器配置对象
 X1_ACTUATOR_R86_2 = ActuatorCfg(
-    joint_names_expr=[
+    joint_names_expr=(
         # 手臂关节
         ".*_shoulder_pitch_joint",  # 肩关节俯仰
         ".*_shoulder_roll_joint",   # 肩关节翻滚
@@ -160,39 +134,17 @@ X1_ACTUATOR_R86_2 = ActuatorCfg(
         "waist_yaw_joint",    # 腰部偏航
         "waist_roll_joint",   # 腰部翻滚
         "waist_pitch_joint",  # 腰部俯仰
-    ],
+    ),
     effort_limit=ACTUATOR_R86_2.effort_limit,
     armature=ACTUATOR_R86_2.reflected_inertia,
     stiffness=STIFFNESS_R86_2,
     damping=DAMPING_R86_2,
 )
 
-# --- 3. R52 型号（C类）：低扭矩手臂/上半身电机 ---
-# 应用位置：10个关节（所有手臂关节和踝关节）
-# 具体为：每条手臂5个关节，共10个
-# 峰值扭矩：19 Nm
-# 峰值速度：130 rpm（13.61 rad/s）
-
-# 电机电枢惯量（估算值）
-ARMATURE_R52 = 0.0085
-# 电机速度限制
-VELOCITY_LIMIT_R52 = 130.0 * RPM_TO_RADS
-# 电机扭矩限制
-EFFORT_LIMIT_R52 = 19.0
-
-# 创建R52电机的执行器对象
-ACTUATOR_R52 = ElectricActuator(
-    reflected_inertia=ARMATURE_R52,
-    velocity_limit=VELOCITY_LIMIT_R52,
-    effort_limit=EFFORT_LIMIT_R52,
-)
-# 计算R52的刚度和阻尼
-STIFFNESS_R52 = ACTUATOR_R52.reflected_inertia * NATURAL_FREQ**2
-DAMPING_R52 = 2.0 * DAMPING_RATIO * ACTUATOR_R52.reflected_inertia * NATURAL_FREQ
 
 # R52 执行器配置对象
 X1_ACTUATOR_R52 = ActuatorCfg(
-    joint_names_expr=[
+    joint_names_expr=(
         # 手臂关节
         ".*_shoulder_yaw_joint",   # 肩关节偏航
         ".*_elbow_pitch_joint",    # 肘关节俯仰
@@ -200,15 +152,35 @@ X1_ACTUATOR_R52 = ActuatorCfg(
         # 腿部关节
         ".*_ankle_pitch_joint",    # 踝关节俯仰
         ".*_ankle_roll_joint",     # 踝关节翻滚
-    ],
+    ),
     effort_limit=ACTUATOR_R52.effort_limit,
     armature=ACTUATOR_R52.reflected_inertia,
     stiffness=STIFFNESS_R52,
     damping=DAMPING_R52,
 )
 
-# 关于L28执行器的说明：L28线性执行器用于控制机械手（夹爪）
-# 在当前的25自由度运动学模型中未被直接建模为旋转关节
+X1_ACTUATOR_WAIST = ActuatorCfg(
+    joint_names_expr=(
+        "waist_yaw_joint",    # 腰部偏航
+        "waist_roll_joint",   # 腰部翻滚
+        "waist_pitch_joint",  # 腰部俯仰
+    ),
+    effort_limit=ACTUATOR_R86_2.effort_limit,
+    armature=ACTUATOR_R86_2.reflected_inertia,
+    stiffness=STIFFNESS_R86_2,
+    damping=DAMPING_R86_2,
+)
+
+X1_ACTUATOR_ANKLE = ActuatorCfg(
+    joint_names_expr=(
+        ".*_ankle_pitch_joint",    # 踝关节俯仰
+        ".*_ankle_roll_joint",     # 踝关节翻滚
+    ),
+    effort_limit=ACTUATOR_R52.effort_limit,
+    armature=ACTUATOR_R52.reflected_inertia,
+    stiffness=STIFFNESS_R52,
+    damping=DAMPING_R52,
+)
 
 ##
 # 关键帧配置（机器人预定义姿态）
@@ -296,7 +268,7 @@ FOOT_FRICTION = 0.6
 #   - condim=3：3维接触（法向力+切向摩擦，用于脚部与地面接触）
 FULL_COLLISION = CollisionCfg(
     # 所有包含"_collision"的几何体参与碰撞检测
-    geom_names_expr=[".*_collision"],
+    geom_names_expr=(".*_collision",),
     # 脚部使用3维接触，其他部分使用1维接触
     condim={FOOT_GEOM_NAMES_REGEX: 3, ".*_collision": 1},
     # 脚部碰撞优先级最高
@@ -308,7 +280,7 @@ FULL_COLLISION = CollisionCfg(
 # 【FULL_COLLISION_WITHOUT_SELF】：完整碰撞配置（不包括自碰撞检测）
 # contype=0, conaffinity=1：禁用自碰撞
 FULL_COLLISION_WITHOUT_SELF = CollisionCfg(
-    geom_names_expr=[".*_collision"],
+    geom_names_expr=(".*_collision",),
     contype=0,      # 接触类型：0表示不与自身碰撞
     conaffinity=1,  # 亲和力：只与环境碰撞
     condim={FOOT_GEOM_NAMES_REGEX: 3, ".*_collision": 1},
@@ -320,7 +292,7 @@ FULL_COLLISION_WITHOUT_SELF = CollisionCfg(
 # 仅检测脚部与环境的接触，用于优化计算效率
 FEET_ONLY_COLLISION = CollisionCfg(
     # 仅脚部几何体参与碰撞检测
-    geom_names_expr=[FOOT_GEOM_NAMES_REGEX],
+    geom_names_expr=(FOOT_GEOM_NAMES_REGEX,),
     contype=0,      # 禁用自碰撞
     conaffinity=1,  # 仅与环境碰撞
     condim=3,       # 3维接触（包括摩擦）
@@ -345,13 +317,20 @@ X1_ARTICULATION = EntityArticulationInfoCfg(
     soft_joint_pos_limit_factor=0.9,
 )
 
-# X1机器人的完整配置对象
-LSX1_ROBOT_CFG = EntityCfg(
-    init_state=READY_KEYFRAME,  # 初始状态使用READY姿态
-    collisions=(FULL_COLLISION,),  # 使用完整碰撞配置
-    spec_fn=get_spec,  # 获取MuJoCo规范的函数
-    articulation=X1_ARTICULATION,  # 关节和执行器配置
-)
+
+def get_g1_robot_cfg() -> EntityCfg:
+  """Get a fresh G1 robot configuration instance.
+
+  Returns a new EntityCfg instance each time to avoid mutation issues when
+  the config is shared across multiple places.
+  """
+  return EntityCfg(
+    init_state=READY_KEYFRAME,
+    collisions=(FULL_COLLISION,),
+    spec_fn=get_spec,
+    articulation=X1_ARTICULATION,
+  )
+
 
 # 【动作规模计算】：强化学习标准化动作空间的必要参数
 # 为每个关节计算动作缩放因子，使得归一化动作（-1到1）映射到合适的扭矩范围
@@ -383,7 +362,7 @@ if __name__ == "__main__":
   from mjlab.entity.entity import Entity
 
   # 创建X1机器人实体
-  robot = Entity(LSX1_ROBOT_CFG)
+  robot = Entity(get_g1_robot_cfg())
 
   # 启动MuJoCo可视化查看器，检查机器人配置是否正确
   viewer.launch(robot.spec.compile())
