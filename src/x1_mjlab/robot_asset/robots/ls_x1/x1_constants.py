@@ -319,7 +319,7 @@ X1_ARTICULATION = EntityArticulationInfoCfg(
 
 
 def get_x1_robot_cfg() -> EntityCfg:
-  """Get a fresh G1 robot configuration instance.
+  """Get a fresh X1 robot configuration instance.
 
   Returns a new EntityCfg instance each time to avoid mutation issues when
   the config is shared across multiple places.
@@ -330,6 +330,9 @@ def get_x1_robot_cfg() -> EntityCfg:
     spec_fn=get_spec,
     articulation=X1_ARTICULATION,
   )
+
+# X1机器人配置对象，用于外部导入
+LSX1_ROBOT_CFG = get_x1_robot_cfg()
 
 
 # 【动作规模计算】：强化学习标准化动作空间的必要参数

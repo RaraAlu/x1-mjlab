@@ -1,3 +1,5 @@
+
+
 from copy import deepcopy
 
 from x1_mjlab.robot_asset.robots.ls_x1.x1_constants import (
@@ -101,7 +103,7 @@ def DARKSEA_X1_ROUGH_ENV_CFG() -> ManagerBasedRlEnvCfg:
 def DARKSEA_X1_FLAT_ENV_CFG() -> ManagerBasedRlEnvCfg:
   """Create DarkSea X1 flat terrain velocity tracking configuration."""
   # Start with rough terrain config.
-  cfg = deepcopy(DARKSEA_X1_ROUGH_ENV_CFG())
+  cfg = deepcopy(DARKSEA_X1_ROUGH_ENV_CFG)
 
   # Change to flat terrain.
   assert cfg.scene.terrain is not None
