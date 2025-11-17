@@ -14,5 +14,8 @@
   "autopep8.args": [
     "--indent-size=2",
     "--ignore=E121,E126,E127,E128,E129,E131,E133" // 忽略悬挂缩进相关的错误
-  ]
+  ],
+  "python-envs.defaultEnvManager": "ms-python.python:conda",
+  "python-envs.defaultPackageManager": "ms-python.python:conda",
+  "python-envs.pythonProjects": []
 }
