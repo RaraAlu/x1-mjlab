@@ -78,18 +78,18 @@ ARMATURE_R52 = 0.0085
 
 ACTUATOR_R86_3 = ElectricActuator(
     reflected_inertia=ARMATURE_R86_3,  # 反射惯量
-    velocity_limit=150,  # 速度限制
-    effort_limit=8,  # 扭矩限制
+    effort_limit=150,  # 扭矩限制 
+    velocity_limit=8,  # 速度限制
 )
 ACTUATOR_R86_2 = ElectricActuator(
     reflected_inertia=ARMATURE_R86_2,  # 反射惯量
-    velocity_limit=50,  # 速度限制
-    effort_limit=24,  # 扭矩限制
+    effort_limit=50,  # 扭矩限制
+    velocity_limit=24,  # 速度限制
 )
 ACTUATOR_R52 = ElectricActuator(
     reflected_inertia=ARMATURE_R52,  # 反射惯量
-    velocity_limit=80,  # 速度限制
-    effort_limit=10,  # 扭矩限制
+    effort_limit=80,  # 扭矩限制
+    velocity_limit=10,  # 速度限制
 )
 
 
