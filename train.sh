@@ -4,4 +4,4 @@
 
 
 uv run x1_train Mjlab-Velocity-Flat-DarkSea-X1 \
-  --env.scene.num-envs 8192
+  --env.scene.num-envs 4096

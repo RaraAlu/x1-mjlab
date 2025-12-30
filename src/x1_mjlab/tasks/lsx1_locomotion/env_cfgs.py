@@ -27,7 +27,7 @@ def DARKSEA_X1_ROUGH_ENV_CFG() -> ManagerBasedRlEnvCfg:
       pattern=r"^(left_ankle_roll_link|right_ankle_roll_link)$",
       entity="robot",
     ),
-    secondary=ContactMatch(mode="body", pattern="terrain"),
+    secondary=None,  # Match any body (ground/terrain)
     fields=("found", "force"),
     reduce="netforce",
     num_slots=1,
