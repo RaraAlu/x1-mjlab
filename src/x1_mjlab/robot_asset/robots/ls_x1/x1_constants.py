@@ -13,12 +13,13 @@ import math
 import mujoco
 
 from x1_mjlab import MJLAB_X1_SRC_PATH
+from mjlab.actuator import BuiltinPositionActuatorCfg
 from mjlab.entity import EntityArticulationInfoCfg, EntityCfg
 from mjlab.utils.actuator import (
     ElectricActuator,
 )
 from mjlab.utils.os import update_assets
-from mjlab.utils.spec_config import ActuatorCfg, CollisionCfg
+from mjlab.utils.spec_config import CollisionCfg
 
 
 ##
@@ -107,9 +108,9 @@ DAMPING_R52 = 2.0 * DAMPING_RATIO * ARMATURE_R52 * NATURAL_FREQ
 
 
 # R86-3 执行器配置对象
-X1_ACTUATOR_R86_3 = ActuatorCfg(
+X1_ACTUATOR_R86_3 = BuiltinPositionActuatorCfg(
     # 关节名称匹配表达式（正则表达式）
-    joint_names_expr=(
+    target_names_expr=(
         ".*_hip_pitch_joint",  # 髋关节俯仰
         ".*_hip_roll_joint",   # 髋关节翻滚
         ".*_knee_pitch_joint",  # 膝关节俯仰
@@ -123,8 +124,8 @@ X1_ACTUATOR_R86_3 = ActuatorCfg(
 
 
 # R86-2 执行器配置对象
-X1_ACTUATOR_R86_2 = ActuatorCfg(
-    joint_names_expr=(
+X1_ACTUATOR_R86_2 = BuiltinPositionActuatorCfg(
+    target_names_expr=(
         # 手臂关节
         ".*_shoulder_pitch_joint",  # 肩关节俯仰
         ".*_shoulder_roll_joint",   # 肩关节翻滚
@@ -143,8 +144,8 @@ X1_ACTUATOR_R86_2 = ActuatorCfg(
 
 
 # R52 执行器配置对象
-X1_ACTUATOR_R52 = ActuatorCfg(
-    joint_names_expr=(
+X1_ACTUATOR_R52 = BuiltinPositionActuatorCfg(
+    target_names_expr=(
         # 手臂关节
         ".*_shoulder_yaw_joint",   # 肩关节偏航
         ".*_elbow_pitch_joint",    # 肘关节俯仰
@@ -159,8 +160,8 @@ X1_ACTUATOR_R52 = ActuatorCfg(
     damping=DAMPING_R52,
 )
 
-X1_ACTUATOR_WAIST = ActuatorCfg(
-    joint_names_expr=(
+X1_ACTUATOR_WAIST = BuiltinPositionActuatorCfg(
+    target_names_expr=(
         "waist_yaw_joint",    # 腰部偏航
         "waist_roll_joint",   # 腰部翻滚
         "waist_pitch_joint",  # 腰部俯仰
@@ -171,8 +172,8 @@ X1_ACTUATOR_WAIST = ActuatorCfg(
     damping=DAMPING_R86_2,
 )
 
-X1_ACTUATOR_ANKLE = ActuatorCfg(
-    joint_names_expr=(
+X1_ACTUATOR_ANKLE = BuiltinPositionActuatorCfg(
+    target_names_expr=(
         ".*_ankle_pitch_joint",    # 踝关节俯仰
         ".*_ankle_roll_joint",     # 踝关节翻滚
     ),
@@ -342,7 +343,7 @@ LSX1_ACTION_SCALE: dict[str, float] = {}
 for a in X1_ARTICULATION.actuators:
   e = a.effort_limit  # 获取扭矩限制
   s = a.stiffness      # 获取刚度
-  names = a.joint_names_expr  # 获取应用的关节名称列表
+  names = a.target_names_expr  # 获取应用的关节名称列表
 
   # 如果扭矩限制不是字典，转换为字典格式
   if not isinstance(e, dict):
