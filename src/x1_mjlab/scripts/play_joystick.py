@@ -3,25 +3,21 @@
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Literal, Optional, cast
+from typing import Literal, Optional
 
-import gymnasium as gym
 import torch
 import tyro
 from rsl_rl.runners import OnPolicyRunner
 from typing_extensions import assert_never
 
-from mjlab.envs import ManagerBasedRlEnvCfg
-from mjlab.rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper
-from mjlab.third_party.isaaclab.isaaclab_tasks.utils.parse_cfg import (
-    load_cfg_from_registry,
-)
+from mjlab.envs import ManagerBasedRlEnv
+from mjlab.rl import RslRlVecEnvWrapper
+from mjlab.tasks.registry import list_tasks, load_env_cfg, load_rl_cfg, load_runner_cls
 from mjlab.utils.torch import configure_torch_backends
-from mjlab.viewer import NativeMujocoViewer, ViserViewer
+from mjlab.viewer import NativeMujocoViewer, ViserPlayViewer
 
 import mjlab.tasks  # 触发任务注册
-
-# 🆕 导入模块化的手柄控制
+import x1_mjlab.tasks  # 触发 x1 任务注册
 from x1_mjlab.utils.joystick import (
   PolicyJoystick,
   JoystickConfig,
@@ -60,14 +56,8 @@ def run_play(task: str, cfg: PlayConfig):
   print(f"[INFO]: Using device: {device}")
 
   # 加载环境和智能体配置
-  env_cfg = cast(
-      ManagerBasedRlEnvCfg, load_cfg_from_registry(
-          task, "env_cfg_entry_point")
-  )
-  agent_cfg = cast(
-      RslRlOnPolicyRunnerCfg, load_cfg_from_registry(
-          task, "rl_cfg_entry_point")
-  )
+  env_cfg = load_env_cfg(task, play=True)
+  agent_cfg = load_rl_cfg(task)
 
   # 模式判断
   DUMMY_MODE = cfg.agent in {"zero", "random"}
@@ -112,22 +102,7 @@ def run_play(task: str, cfg: PlayConfig):
     print("[WARN] Video recording with dummy agents is disabled.")
 
   # 创建环境
-  env = gym.make(task, cfg=env_cfg, device=device, render_mode=render_mode)
-
-  # 如果需要录制视频，用RecordVideo包装环境
-  if (TRAINED_MODE or JOYSTICK_MODE) and cfg.video:
-    # 🔧 类型安全检查：确保 log_dir 不为 None
-    if log_dir is None:
-      raise RuntimeError("log_dir must be set when recording video")
-
-    print("[INFO] Recording videos during play")
-    env = gym.wrappers.RecordVideo(
-        env,
-        video_folder=str(log_dir / "videos" / "play"),
-        step_trigger=lambda step: step == 0,
-        video_length=cfg.video_length,
-        disable_logger=True,
-    )
+  env = ManagerBasedRlEnv(cfg=env_cfg, device=device, render_mode=render_mode)
 
   env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
 
@@ -169,13 +144,10 @@ def run_play(task: str, cfg: PlayConfig):
       )
 
     # 加载训练好的策略
-    runner = OnPolicyRunner(
-        env, asdict(agent_cfg), log_dir=str(log_dir), device=device
-    )
-    print("[INFO] Loading trained policy...")
+    runner_cls = load_runner_cls(task) or OnPolicyRunner
+    runner = runner_cls(env, asdict(agent_cfg), device=device)
     runner.load(str(resume_path), map_location=device)
     trained_policy = runner.get_inference_policy(device=device)
-    print("[INFO] Trained policy loaded successfully")
 
     # 创建手柄配置
     joystick_config = JoystickConfig(
@@ -205,12 +177,10 @@ def run_play(task: str, cfg: PlayConfig):
           "Checkpoint and log directory must be set for trained mode"
       )
 
-    runner = OnPolicyRunner(
-        env, asdict(agent_cfg), log_dir=str(log_dir), device=device
-    )
+    runner_cls = load_runner_cls(task) or OnPolicyRunner
+    runner = runner_cls(env, asdict(agent_cfg), device=device)
     runner.load(str(resume_path), map_location=device)
     policy = runner.get_inference_policy(device=device)
-    print("[INFO] ✅ Trained policy loaded successfully\n")
 
   # 🆕 手柄测试提示
   if JOYSTICK_MODE:
@@ -222,7 +192,7 @@ def run_play(task: str, cfg: PlayConfig):
     NativeMujocoViewer(env, policy).run()
   elif cfg.viewer == "viser":
     print("[INFO] Starting Viser Web Viewer...")
-    ViserViewer(env, policy).run()
+    ViserPlayViewer(env, policy).run()
   else:
     assert_never(cfg.viewer)
 
@@ -231,16 +201,12 @@ def run_play(task: str, cfg: PlayConfig):
 
 def main():
   """主入口点"""
-  task_prefix = "Mjlab-"
-
+  all_tasks = list_tasks()
   chosen_task, remaining_args = tyro.cli(
-      tyro.extras.literal_type_from_choices(
-          [k for k in gym.registry.keys() if k.startswith(task_prefix)]
-      ),
+      tyro.extras.literal_type_from_choices(all_tasks),
       add_help=False,
       return_unknown_args=True,
   )
-  del task_prefix
 
   args = tyro.cli(
       PlayConfig,
